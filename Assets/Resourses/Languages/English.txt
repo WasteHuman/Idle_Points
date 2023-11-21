@@ -1,0 +1,10 @@
+0 : Points
+1 : sec
+2 : click
+3 : P
+4 : Upgrades
+5 : Bonuses
+6 : pts
+7 : per second
+8 : Increase offline time
+9 : Current offline time
