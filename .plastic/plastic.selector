@@ -1,0 +1,4 @@
+repository "Idle Points@WasteMoonGames@cloud"
+  path "/"
+    br "/main"
+    co "/main"
