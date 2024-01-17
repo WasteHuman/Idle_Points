@@ -10,7 +10,7 @@ public class LanguageManager : MonoBehaviour
 
     public Text textLine;
 
-    private void Start()
+    private void Awake()
     {
         Instance = this;
 

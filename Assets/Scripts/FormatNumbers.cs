@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public static class FormatNumbers
 {
     public static string[] formatName = new[]

@@ -2,14 +2,13 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using Architecture;
 
 public class GameLogic : Sounds
 {
     public static GameLogic Instance;
 
     private float points;
-    private float clickScore;
+    private float clickScore = 1f;
 
     private int _maxOfflineTime = 2 * 60 * 60;
 
@@ -18,7 +17,7 @@ public class GameLogic : Sounds
     [SerializeField] private int _clicksBeforeShowAd;
     [SerializeField] private float _totalOfflineBonus;
 
-    public int ClicksForShowAd { get; set; }
+    public int ClicksForShowAd { get; private set; }
 
     [SerializeField] private float[] _multiplier;
     [SerializeField] private float[] _costUpgrade;
@@ -45,11 +44,6 @@ public class GameLogic : Sounds
 
     void Start()
     {
-        clickScore = 1f;
-
-        StartGame.RunGame();
-        StartGame.OnGameInizializedEvent += OnGameInizializedEvent;
-
         StartCoroutine(BonusIncomePerSec());
         StartCoroutine(ScaleChanger.Instance.SpawnPoints());
 
@@ -59,26 +53,16 @@ public class GameLogic : Sounds
         }
     }
 
-    private void OnGameInizializedEvent()
-    {
-        StartGame.OnGameInizializedEvent -= OnGameInizializedEvent;
-        var pointsInteractor = StartGame.GetInteractor<PointsInteractor>();
-        var score = pointsInteractor.score;
-    }
-
     public void InitSaveGame()
     {
-        StartGame.RunGame();
         sv = new GameData();
-        points = Points.score;
-        clickScore = Points.clickScore;
 
         //Загрузка сохранения
         if (PlayerPrefs.HasKey("SV"))
         {
             sv = JsonUtility.FromJson<GameData>(PlayerPrefs.GetString("SV"));
-            Points.score = sv.score;
-            Points.clickScore = sv.clickScore;
+            points = sv.score;
+            clickScore = sv.clickScore;
             pointsPerSecond = sv.pointsPerSecond;
             totalBonusIncome = sv.totalBonusIncome;
             isBonusPurchased = sv.isBonusPurchased;
@@ -119,10 +103,6 @@ public class GameLogic : Sounds
 
     void Update()
     {
-        if (!Points.isInizialized)
-        {
-            return;
-        }
 
         if (LanguageManager.Instance.language == 1)
         {
@@ -135,7 +115,7 @@ public class GameLogic : Sounds
             totalBonusIncomeText.text = FormatNumbers.FormatNumber(totalBonusIncome) + " P/sec";
         }
 
-        scoreText.text = FormatNumbers.FormatNumber(Points.score);
+        scoreText.text = FormatNumbers.FormatNumber(points);
 
         totalClickPoints = clickScore;
 
@@ -179,7 +159,7 @@ public class GameLogic : Sounds
 
     public void ClickOnClickCircle()
     {
-        Points.AddPoints(points, clickScore);
+        points += clickScore;
 
         PlaySound(sounds[0]);
 
@@ -208,10 +188,10 @@ public class GameLogic : Sounds
 
     public void FirstUpgrade()
     {
-        if (Points.score >= _costUpgrade[0])
+        if (points >= _costUpgrade[0])
         {
-            Points.Spend(Points.score, _costUpgrade[0]);
-            Points.clickScore *= _multiplier[1];
+            points -= _costUpgrade[0];
+            clickScore *= _multiplier[1];
             _costUpgrade[0] *= 2f;
             upgradeCostText[0].text = FormatNumbers.FormatNumber(_costUpgrade[0]);
         }
@@ -221,10 +201,10 @@ public class GameLogic : Sounds
 
     public void SecondUpgrage()
     {
-        if (Points.score >= _costUpgrade[1])
+        if (points >= _costUpgrade[1])
         {
-            Points.Spend(Points.score, _costUpgrade[1]);
-            Points.clickScore *= _multiplier[1];
+            points -= _costUpgrade[1];
+            clickScore *= _multiplier[1];
             _costUpgrade[1] *= 2f;
             upgradeCostText[1].text = FormatNumbers.FormatNumber(_costUpgrade[1]);
         }
@@ -234,10 +214,10 @@ public class GameLogic : Sounds
 
     public void ThirdUpgrade()
     {
-        if (Points.score >= _costUpgrade[2])
+        if (points >= _costUpgrade[2])
         {
-            Points.Spend(Points.score, _costUpgrade[2]);
-            Points.clickScore *= _multiplier[2];
+            points -= _costUpgrade[2];
+            clickScore *= _multiplier[2];
             _costUpgrade[2] *= 2f;
             upgradeCostText[2].text = FormatNumbers.FormatNumber(_costUpgrade[2]);
         }
@@ -247,10 +227,10 @@ public class GameLogic : Sounds
 
     public void FourthUpgrade()
     {
-        if (Points.score >= _costUpgrade[3])
+        if (points >= _costUpgrade[3])
         {
-            Points.Spend(Points.score, _costUpgrade[3]);
-            Points.clickScore *= _multiplier[3];
+            points -= _costUpgrade[3];
+            clickScore *= _multiplier[3];
             _costUpgrade[3] *= 2f;
             upgradeCostText[3].text = FormatNumbers.FormatNumber(_costUpgrade[3]);
         }
@@ -260,10 +240,10 @@ public class GameLogic : Sounds
 
     public void FifthUpgrade()
     {
-        if (Points.score >= _costUpgrade[4])
+        if (points >= _costUpgrade[4])
         {
-            Points.Spend(Points.score, _costUpgrade[4]);
-            Points.clickScore *= _multiplier[4];
+            points -= _costUpgrade[4];
+            clickScore *= _multiplier[4];
             _costUpgrade[4] *= 2f;
             upgradeCostText[4].text = FormatNumbers.FormatNumber(_costUpgrade[4]);
         }
@@ -273,9 +253,9 @@ public class GameLogic : Sounds
 
     public void BuyBonus2PerSec()
     {
-        if (Points.score >= costBonus[0])
+        if (points >= costBonus[0])
         {
-            Points.Spend(Points.score, costBonus[0]);
+            points -= costBonus[0];
 
             isBonusPurchased = true;
 
@@ -288,9 +268,9 @@ public class GameLogic : Sounds
     }
     public void BuyBonus6PerSec()
     {
-        if (Points.score >= costBonus[1])
+        if (points >= costBonus[1])
         {
-            Points.Spend(Points.score, costBonus[1]);
+            points -= costBonus[1];
 
             isBonusPurchased = true;
 
@@ -304,9 +284,9 @@ public class GameLogic : Sounds
 
     public void BuyBonus12PerSec()
     {
-        if (Points.score >= costBonus[2])
+        if (points >= costBonus[2])
         {
-            Points.Spend(Points.score, costBonus[2]);
+            points -= costBonus[2];
 
             isBonusPurchased = true;
 
@@ -320,9 +300,9 @@ public class GameLogic : Sounds
 
     public void BuyBonus24PerSec()
     {
-        if (Points.score >= costBonus[3])
+        if (points >= costBonus[3])
         {
-            Points.Spend(Points.score, costBonus[3]);
+            points -= costBonus[3];
 
             isBonusPurchased = true;
 
@@ -336,9 +316,9 @@ public class GameLogic : Sounds
 
     public void BuyBonus48PerSec()
     {
-        if (Points.score >= costBonus[4])
+        if (points >= costBonus[4])
         {
-            Points.Spend(Points.score, costBonus[4]);
+            points -= costBonus[4];
 
             isBonusPurchased = true;
 
@@ -352,10 +332,10 @@ public class GameLogic : Sounds
 
     public void UpgradeMaxOfflineTime()
     {
-        if (Points.score >= costUpgradeOffline && _maxOfflineTime != 16*60*60)
+        if (points >= costUpgradeOffline && _maxOfflineTime != 16*60*60)
         {
             _maxOfflineTime *= 2;
-            Points.Spend(Points.score, costUpgradeOffline);
+            points -= costUpgradeOffline;
             costUpgradeOffline *= 5;
             bonusCostText[5].text = FormatNumbers.FormatNumber(costUpgradeOffline);
 
@@ -382,7 +362,7 @@ public class GameLogic : Sounds
         }
         while (isBonusPurchased)
         {
-            Points.AddPoints(Points.score, pointsPerSecond);
+            points += pointsPerSecond;
             PlaySound(sounds[0]);
             yield return new WaitForSeconds(1f);
         }
@@ -401,7 +381,7 @@ public class GameLogic : Sounds
     //Сохранение вне Android
     public void OnApplicationQuit()
     {
-        Save();
+        //Save();
     }
 #endif
 

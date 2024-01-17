@@ -1,3 +1,4 @@
+using NewGameLogic;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,7 @@ public class PointObjectAnim : MonoBehaviour
     void Start()
     {
         pointObject = GetComponent<Text>();
-        pointObject.text = "+" + FormatNumbers.FormatNumber(GameLogic.Instance.totalClickPoints);
+        pointObject.text = "+" + FormatNumbers.FormatNumber(NewGame.NewPlayer.CoinsData.CoinsPerClick);
         Destroy(gameObject, 0.75f);
     }
 
@@ -19,6 +20,6 @@ public class PointObjectAnim : MonoBehaviour
     {
         pointObject.color = new Color(pointObject.color.r, pointObject.color.g, pointObject.color.b, Mathf.PingPong(Time.time / 2.5f, 1.0f));
 
-        transform.position += transform.up * Time.deltaTime * moveSpeed;
+        transform.position += moveSpeed * Time.deltaTime * transform.up;
     }
 }
